@@ -25,7 +25,7 @@ This application, named <a href="http://github.com/agateau/qyok">QYok</a> (yes, 
 - <a href="http://trac.webkit.org/wiki/QtWebKit">QtWebKit</a>, to display the task lists
 - <a href="http://jquery.com">jQuery</a>, to make it easier to manipulate the HTML and provide nice animations
 - <a href="http://jinja.pocoo.org/">Jinja2</a>, a Python-based template system, using a syntax similar to Django (and thus Grantlee)
-- and of course, <a href="http//yokadi.github.com">Yokadi</a> itself, to provide access to the TODO database
+- and of course, <a href="http://yokadi.github.com">Yokadi</a> itself, to provide access to the TODO database
 
 In this series of articles, I am going to describe how one can mix PyQt and WebKit together, based on my learnings from the QYok project. In particular I want to show ways to generate native-looking HTML code, to ensure your application does not look alien on your desktop.
 

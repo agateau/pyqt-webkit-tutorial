@@ -29,9 +29,54 @@ This application, named <a href="http://github.com/agateau/qyok">QYok</a> (yes, 
 
 This is the first, very easy, step. Here is a complete example:
 
+    import sys
 
+    from PyQt4.QtCore import *
+    from PyQt4.QtGui import *
+    from PyQt4.QtWebKit import *
 
-I hit my first little road-block here: the HTML code contained references to images stored in a "static" dir alongside the Python code, but I couldn't get the images to appear. setHtml() has a second optional parameter which defines the base url for all relative paths specified in the HTML. I thus called setHtml() like this: `webView.setHtml(html, baseUrl)`, where baseUrl was defined as "/my/python/code/static" but that didn't work. After quite some head scratching, I figured it out: baseUrl must end with a trailing slash. Tricky.
+    class Window(QWidget):
+        def __init__(self):
+            super(Window, self).__init__()
+            view = QWebView(self)
+            layout = QVBoxLayout(self)
+            layout.addWidget(view)
+
+            html = """
+                <html><body>
+                Hello World!
+                </body></html>
+                """
+            view.setHtml(html)
+
+    def main():
+        app = QApplication(sys.argv)
+        window = Window()
+        window.show()
+        app.exec_()
+
+    if __name__ == "__main__":
+        main()
+
+What all this does is create a window, create a webview in it and set some HTML. Nothing fancy.
+
+# HTML is nicer with images
+
+One of the main point of using HTML is that it makes it reasonably easy to create complex documents which include images. So let's add a folder named "static" to our dir, with an image in it. Since we are feeding QWebView with HTML, it has no way to know where to look for our images. Luckily, `setHtml()` accepts a second parameter: the base url of the document. Any relative url contained in our HTML will be resolved using this url as a base.
+
+Here is the modified call to `setHtml()`:
+
+    pyDir = os.path.abspath(os.path.dirname(__file__))
+    baseUrl = QUrl.fromLocalFile(os.path.join(pyDir, "static/"))
+    html = """
+        <html><body>
+        <div>Hello World!</div>
+        <img src="test.png"/>
+        </body></html>
+        """
+    view.setHtml(html, baseUrl)
+
+Be careful: always ensure baseUrl ends up with a trailing slash! If there is no trailing slash, QWebView will resolve "test.png" as "/path/to/tut1/statictest.png" instead of "/path/to/tut1/static/test.png". I learnt that the hard way...
 
 # Calling Qt code from JavaScript
 
@@ -95,7 +140,7 @@ In this example, we create `self.foo`, an instance of the Foo class, then expose
 
 We then feed our QWebView with some HTML code with `view.setHtml()`. Note how JavaScript code can now refer to our foo object as if it was a native JavaScript object.
 
-(Complete code for this example is available as a <a href="https://gist.github.com/1647398">github gist</a>)
+(Complete code for this example is available from <a href="https://github.com/agateau/pyqt-webkit-tutorial/blob/master/tut1/expose-qtobject.py">github</a>)
 
 ----
 

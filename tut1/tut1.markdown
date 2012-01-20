@@ -1,6 +1,8 @@
-# Swimming against the stream or preparing for next stream change? HTML+PyQt experiment
+# Swimming against the stream or preparing for next stream change? PyQt+WebKit experiments
 
 ----
+
+# Introduction
 
 It is an interesting time to be a Qt developer: new ways to develop applications are emerging, one can either ignore them or experiment... I like experimentations.
 
@@ -24,6 +26,8 @@ This application, named <a href="http://github.com/agateau/qyok">QYok</a> (yes, 
 - <a href="http://jquery.com">jQuery</a>, to make it easier to manipulate the HTML and provide nice animations
 - <a href="http://jinja.pocoo.org/">Jinja2</a>, a Python-based template system, using a syntax similar to Django (and thus Grantlee)
 - and of course, Yokadi itself, to provide access to the application data
+
+In this series of articles, I am going to describe how one can mix PyQt and WebKit together, based on my learnings from the QYok project. In particular I want to show ways to generate native-looking HTML code, to ensure your application does not look alien on your desktop.
 
 # Getting a Qt application to show HTML code
 
@@ -58,13 +62,18 @@ This is the first, very easy, step. Here is a complete example:
     if __name__ == "__main__":
         main()
 
+(<a href="https://github.com/agateau/pyqt-webkit-tutorial/blob/master/tut1/hello-world.py">Source code</a>)
+
 What all this does is create a window, create a webview in it and set some HTML. Nothing fancy.
+
+![hello-world](hello-world.png)
+
 
 # HTML is nicer with images
 
-One of the main point of using HTML is that it makes it reasonably easy to create complex documents which include images. So let's add a folder named "static" to our dir, with an image in it. Since we are feeding QWebView with HTML, it has no way to know where to look for our images. Luckily, `setHtml()` accepts a second parameter: the base url of the document. Any relative url contained in our HTML will be resolved using this url as a base.
+One of the main point of using HTML is that it makes it reasonably easy to create complex documents which include images. So let's add a folder named "static" to our code folder, with an image in it. Since we are feeding QWebView with HTML, it has no way to know where to look for our images. Luckily, setHtml() accepts a second parameter: the base url of the document. Any relative url contained in our HTML will be resolved using this url as a base.
 
-Here is the modified call to `setHtml()`:
+Here is the modified call to setHtml():
 
     pyDir = os.path.abspath(os.path.dirname(__file__))
     baseUrl = QUrl.fromLocalFile(os.path.join(pyDir, "static/"))
@@ -75,6 +84,10 @@ Here is the modified call to `setHtml()`:
         </body></html>
         """
     view.setHtml(html, baseUrl)
+
+(<a href="https://github.com/agateau/pyqt-webkit-tutorial/blob/master/tut1/hello-world-img.py">Source code</a>)
+
+![hello-world-img](hello-world-img.png)
 
 Be careful: always ensure baseUrl ends up with a trailing slash! If there is no trailing slash, QWebView will resolve "test.png" as "/path/to/tut1/statictest.png" instead of "/path/to/tut1/static/test.png". I learnt that the hard way...
 
@@ -93,7 +106,7 @@ QtWebKit takes advantage of Qt introspection features to access object methods a
         def quit(self):
             QApplication.quit()
 
-The important part here are the "@pyqtSlot()" decorators, which take care of turning our methods into slots. As you may have guessed, the decorator expect you to describe the type of the parameters accepted by your method, as well as the type of the returned value, if any.
+The important part here are the "@pyqtSlot()" decorators, which take care of turning our methods into slots. As you may have guessed, the decorator expects you to describe the type of the parameters accepted by your method, as well as the type of the returned value, if any.
 
 Now that this done, lets create a Window class which will instantiate our Foo class and pass it to JavaScript:
 
@@ -107,47 +120,38 @@ Now that this done, lets create a Window class which will instantiate our Foo cl
             self.foo = Foo(self)
             view.page().mainFrame().addToJavaScriptWindowObject("foo", self.foo)
 
-            view.setHtml("""
-            <html>
-            <script>
-            function updateEntry() {
-                var element = document.getElementById("entry");
-                var result = foo.compute(element.value);
-                element.value = result;
-            }
-            </script>
-            <body>
-            <div>
-                <input type="text" id="entry"/>
-                <input type="button" value="Compute" onclick="updateEntry()"/>
-            </div>
-            <div>
-                <input type="button" value="Quit" onclick="foo.quit()"/>
-            </div>
-            </body>
-            </html>
-            """)
+            html = """
+                <html>
+                <head>
+                <script>
+                function updateEntry() {
+                    var element = document.getElementById("entry");
+                    var result = foo.compute(element.value);
+                    element.value = result;
+                }
+                </script>
+                </head>
+                <body>
+                <div>
+                    <input type="text" id="entry" value="1"/>
+                    <input type="button" value="Compute" onclick="updateEntry()"/>
+                </div>
+                <div>
+                    <input type="button" value="Quit" onclick="foo.quit()"/>
+                </div>
+                </body>
+                </html>
+                """
+            view.setHtml(html)
 
-This PyQt-HTML masterpiece looks like this:
+(<a href="https://github.com/agateau/pyqt-webkit-tutorial/blob/master/tut1/expose-qtobject.py">Source code</a>)
 
-![Example](pyqt-webkit-tut2.png)
+![expose-qtobject](expose-qtobject.png)
 
-Clicking the "Compute" button doubles the value in the input widget, clicking Quit... quits the application.
+Clicking the "Compute" button doubles the value in the input widget, clicking the "Quit" button, quits the application.
 
-In this example, we create `self.foo`, an instance of the Foo class, then expose it to our QWebView with the line:
+In this example, we create self.foo, an instance of the Foo class, then expose it to our QWebView with the line:
 
     view.page().mainFrame().addToJavaScriptWindowObject("foo", self.foo)
 
-We then feed our QWebView with some HTML code with `view.setHtml()`. Note how JavaScript code can now refer to our foo object as if it was a native JavaScript object.
-
-(Complete code for this example is available from <a href="https://github.com/agateau/pyqt-webkit-tutorial/blob/master/tut1/expose-qtobject.py">github</a>)
-
-----
-
-Console
-Palette
-Menu
-Widgets
-Setup
-Icons
-Live updates
+We then feed our QWebView with some HTML code with view.setHtml(). Note how JavaScript code can now refer to our foo object as if it was a native JavaScript object.

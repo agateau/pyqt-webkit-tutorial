@@ -23,29 +23,35 @@ class Window(QWidget):
         self.foo = Foo(self)
         view.page().mainFrame().addToJavaScriptWindowObject("foo", self.foo)
 
-        view.setHtml("""
-        <html>
-        <script>
-        function updateEntry() {
-            var element = document.getElementById("entry");
-            var result = foo.compute(element.value);
-            element.value = result;
-        }
-        </script>
-        <body>
-        <div>
-            <input type="text" id="entry"/>
-            <input type="button" value="Compute" onclick="updateEntry()"/>
-        </div>
-        <div>
-            <input type="button" value="Quit" onclick="foo.quit()"/>
-        </div>
-        </body>
-        </html>
-        """)
+        html = """
+            <html>
+            <head>
+            <script>
+            function updateEntry() {
+                var element = document.getElementById("entry");
+                var result = foo.compute(element.value);
+                element.value = result;
+            }
+            </script>
+            </head>
+            <body>
+            <div>
+                <input type="text" id="entry" value="1"/>
+                <input type="button" value="Compute" onclick="updateEntry()"/>
+            </div>
+            <div>
+                <input type="button" value="Quit" onclick="foo.quit()"/>
+            </div>
+            </body>
+            </html>
+            """
+        view.setHtml(html)
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     window = Window()
     window.show()
     app.exec_()
+
+if __name__ == "__main__":
+    main()

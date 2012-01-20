@@ -155,3 +155,9 @@ In this example, we create self.foo, an instance of the Foo class, then expose i
     view.page().mainFrame().addToJavaScriptWindowObject("foo", self.foo)
 
 We then feed our QWebView with some HTML code with view.setHtml(). Note how JavaScript code can now refer to our foo object as if it was a native JavaScript object.
+
+# Conclusion
+
+That's it for now. Stay tuned for the next article. 
+
+PS: All examples are available from <a href="http://github.com/agateau/pyqt-webkit-tutorial">github</a>: `git clone git://github.com/agateau/pyqt-webkit-tutorial.git` to get it.

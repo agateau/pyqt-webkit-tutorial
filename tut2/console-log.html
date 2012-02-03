@@ -1,0 +1,22 @@
+<html>
+<head>
+<script>
+function chattyFunction(arg1, arg2) {
+    var result;
+    result = arg1 * 2;
+    console.log("result" + result);
+    result += arg2;
+    console.log("result" + result);
+    result /= 4;
+    console.log("result" + result);
+    return result;
+}
+</script>
+</head>
+<body>
+Complex computation:
+<script>
+document.write(chattyFunction(2, 3));
+</script>
+</body>
+</html>
